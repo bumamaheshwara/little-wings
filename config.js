@@ -1,13 +1,12 @@
 // ===== Firebase settings for Little Wings Teacher App =====
-// Replace the PASTE_... values with the ones from:
-// Firebase console > Project settings (gear icon) > Your apps > Web app > "firebaseConfig"
+// Project: little-wings-f9a06
 // These values are not passwords - it is safe for them to be in a public repository.
-// Your data is protected by sign-in and the security rules (firestore.rules).
+// Your data is protected by Google sign-in and the security rules (firestore.rules).
 window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyDMCyFHe-fzldI5QscUjmvDfkVIol2tVJ8",
+  authDomain: "little-wings-f9a06.firebaseapp.com",
+  projectId: "little-wings-f9a06",
+  storageBucket: "little-wings-f9a06.firebasestorage.app",
+  messagingSenderId: "617947180694",
+  appId: "1:617947180694:web:d3c4647e61557545089cb7"
 };
