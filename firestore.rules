@@ -1,0 +1,52 @@
+rules_version = '2';
+// Little Wings Teacher App - Firestore security rules
+// Paste this whole file into Firebase console > Firestore Database > Rules, then click Publish.
+//  - The FIRST person to sign in becomes Admin (management).
+//  - Everyone after that waits for an Admin to approve them as Teacher or Admin.
+//  - Only approved Teachers/Admins can read or change student records.
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function myDoc() { return /databases/$(db)/documents/users/$(request.auth.uid); }
+    function role() { return get(myDoc()).data.role; }
+    function isStaff() { return signedIn() && exists(myDoc()) && role() in ['teacher', 'admin']; }
+    function isAdmin() { return signedIn() && exists(myDoc()) && role() == 'admin'; }
+    function bootstrapPath() { return /databases/$(db)/documents/meta/bootstrap; }
+
+    // One-time marker so only the very first account can make itself Admin
+    match /meta/bootstrap {
+      allow read: if signedIn();
+      allow create: if signedIn() && !exists(bootstrapPath())
+                    && getAfter(myDoc()).data.role == 'admin';
+      allow update, delete: if false;
+    }
+
+    // Login accounts and their role: pending / teacher / admin
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isStaff());
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.email == request.auth.token.email
+                    && (request.resource.data.role == 'pending'
+                        || (request.resource.data.role == 'admin'
+                            && !exists(bootstrapPath())
+                            && existsAfter(bootstrapPath())));
+      allow update: if isAdmin()
+                    || (signedIn() && request.auth.uid == uid
+                        && request.resource.data.role == resource.data.role);
+      allow delete: if isAdmin();
+    }
+
+    match /students/{id} {
+      allow read, create, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+    match /teachers/{id} {
+      allow read: if isStaff();
+      allow write: if isAdmin();
+    }
+    match /settings/{id} {
+      allow read: if isStaff();
+      allow write: if isAdmin();
+    }
+  }
+}
